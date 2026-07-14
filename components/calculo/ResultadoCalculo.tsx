@@ -46,7 +46,7 @@ export function ResultadoCalculo({ resultado }: ResultadoCalculoProps) {
         <div className="divide-y">
           <LinhaResultado
             label="UFESP utilizada (época)"
-            valor={formatCurrency(resultado.ufespEpoca)}
+            valor={formatCurrency(resultado.ufespUtilizada.valor)}
           />
           <LinhaResultado
             label="UFESP atual"

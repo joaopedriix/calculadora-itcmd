@@ -30,3 +30,15 @@ export function formatDate(data: Date): string {
 export function formatMesAno(data: Date): string {
   return format(data, "MMMM 'de' yyyy", { locale: ptBR })
 }
+
+/**
+ * Formata um período de vigência (ex.: "01/04/1992 até 30/04/1992" ou
+ * "01/07/2026 até o momento", quando ainda não há data final).
+ */
+export function formatPeriodoVigencia(
+  dataInicio: Date,
+  dataFim: Date | null
+): string {
+  const inicio = formatDate(dataInicio)
+  return dataFim ? `${inicio} até ${formatDate(dataFim)}` : `${inicio} até o momento`
+}

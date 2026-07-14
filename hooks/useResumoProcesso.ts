@@ -18,7 +18,7 @@ export interface ResumoProcessoPreview {
   dataFalecimento?: Date
   valorBens?: number
   ufespEncontrada: number | null
-  ufespAtual: number
+  ufespAtual: number | null
   valorAtualizado: number | null
   valorTotal: number | null
 }
@@ -42,13 +42,13 @@ export function useResumoProcesso(
   } = valores
 
   return useMemo(() => {
-    const ufespAtual = buscarUFESPAtual()
+    const ufespAtual = buscarUFESPAtual()?.valor ?? null
 
     let ufespEncontrada: number | null = null
     let valorAtualizado: number | null = null
     let valorTotal: number | null = null
 
-    if (dataFalecimento && valorBens && valorBens > 0) {
+    if (dataFalecimento && valorBens && valorBens > 0 && ufespAtual !== null) {
       const registro = buscarUFESP(dataFalecimento)
 
       if (registro) {

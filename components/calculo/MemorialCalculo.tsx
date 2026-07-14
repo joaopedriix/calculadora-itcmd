@@ -9,7 +9,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { formatCurrency, formatDate, formatUfesp } from "@/utils/formatters"
+import {
+  formatCurrency,
+  formatDate,
+  formatPeriodoVigencia,
+  formatUfesp,
+} from "@/utils/formatters"
 import type { DadosCalculo, DadosProcesso, ResultadoCalculo } from "@/types"
 
 interface MemorialCalculoProps {
@@ -78,8 +83,23 @@ export function MemorialCalculo({
             valor={formatCurrency(calculo.valorBens)}
           />
           <LinhaMemorial
+            label="Data da UFESP utilizada"
+            valor={formatDate(resultado.ufespUtilizada.dataInicioVigencia)}
+          />
+          <LinhaMemorial
             label="UFESP utilizada"
-            valor={formatCurrency(resultado.ufespEpoca)}
+            valor={formatCurrency(resultado.ufespUtilizada.valor)}
+          />
+          <LinhaMemorial
+            label="Período de vigência"
+            valor={formatPeriodoVigencia(
+              resultado.ufespUtilizada.dataInicioVigencia,
+              resultado.ufespUtilizada.dataFimVigencia
+            )}
+          />
+          <LinhaMemorial
+            label="Fonte da informação"
+            valor={resultado.ufespUtilizada.fonte}
           />
           <LinhaMemorial
             label="Quantidade de UFESP"

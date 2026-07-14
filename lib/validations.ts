@@ -33,3 +33,33 @@ export const calculoFormSchema = z.object({
 })
 
 export type CalculoFormValues = z.infer<typeof calculoFormSchema>
+
+/**
+ * Schema do formulário de criação/edição de um registro na Tabela Histórica
+ * UFESP. `dataFimVigencia` é opcional (registro "ainda vigente").
+ */
+export const ufespFormSchema = z
+  .object({
+    dataInicioVigencia: z.date({
+      error: "Informe a data inicial de vigência.",
+    }),
+    dataFimVigencia: z.date().nullable(),
+    valor: z
+      .number({ error: "Informe o valor da UFESP." })
+      .positive({ error: "O valor da UFESP deve ser maior que zero." }),
+    fonte: z
+      .string()
+      .trim()
+      .min(1, { error: "Informe a fonte da informação." }),
+    observacoes: z.string(),
+  })
+  .refine(
+    (dados) =>
+      !dados.dataFimVigencia || dados.dataFimVigencia >= dados.dataInicioVigencia,
+    {
+      error: "A data final de vigência não pode ser anterior à data inicial.",
+      path: ["dataFimVigencia"],
+    }
+  )
+
+export type UfespFormValues = z.infer<typeof ufespFormSchema>

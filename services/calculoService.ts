@@ -8,9 +8,10 @@ import type { DadosCalculo, ResultadoCalculo } from "@/types"
  */
 export class UfespNaoEncontradaError extends Error {
   constructor(dataFalecimento: Date) {
+    const dia = String(dataFalecimento.getDate()).padStart(2, "0")
     const mes = String(dataFalecimento.getMonth() + 1).padStart(2, "0")
     super(
-      `Não há UFESP cadastrada para ${mes}/${dataFalecimento.getFullYear()}.`
+      `Não há UFESP cadastrada vigente em ${dia}/${mes}/${dataFalecimento.getFullYear()}.`
     )
     this.name = "UfespNaoEncontradaError"
   }
@@ -69,26 +70,40 @@ export function executarCalculo(dados: DadosCalculo): ResultadoCalculo {
 /**
  * Cálculo completo de ITCMD por atualização via UFESP.
  *
- * @throws {UfespNaoEncontradaError} quando não há UFESP para o período informado.
+ * @throws {UfespNaoEncontradaError} quando não há UFESP vigente na data do falecimento.
+ * @throws {Error} quando não há nenhuma UFESP vigente hoje (tabela mal cadastrada).
  */
 function calcularItcmdPorUfesp(dados: DadosCalculo): ResultadoCalculo {
-  const registroUfesp = buscarUFESP(dados.dataFalecimento)
+  const registroEpoca = buscarUFESP(dados.dataFalecimento)
 
-  if (!registroUfesp) {
+  if (!registroEpoca) {
     throw new UfespNaoEncontradaError(dados.dataFalecimento)
   }
 
-  const ufespEpoca = registroUfesp.valor
-  const ufespAtual = buscarUFESPAtual()
+  const registroAtual = buscarUFESPAtual()
 
-  const quantidadeUfesp = calcularQuantidadeUfesp(dados.valorBens, ufespEpoca)
+  if (!registroAtual) {
+    throw new Error(
+      "Não há UFESP vigente cadastrada para a data de hoje. Cadastre um registro atual na Tabela Histórica UFESP."
+    )
+  }
+
+  const ufespAtual = registroAtual.valor
+
+  const quantidadeUfesp = calcularQuantidadeUfesp(dados.valorBens, registroEpoca.valor)
   const valorAtualizado = calcularValorAtualizado(quantidadeUfesp, ufespAtual)
   const valorItcmd = calcularItcmd(valorAtualizado, dados.aliquotaItcmd)
   const valorMulta = calcularMulta(valorItcmd, dados.percentualMulta)
   const valorTotal = calcularValorFinal(valorItcmd, valorMulta)
 
   return {
-    ufespEpoca,
+    ufespUtilizada: {
+      valor: registroEpoca.valor,
+      dataInicioVigencia: registroEpoca.dataInicioVigencia,
+      dataFimVigencia: registroEpoca.dataFimVigencia,
+      fonte: registroEpoca.fonte,
+      observacoes: registroEpoca.observacoes,
+    },
     ufespAtual,
     quantidadeUfesp,
     valorAtualizado,
