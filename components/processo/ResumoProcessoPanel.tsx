@@ -52,7 +52,7 @@ export function ResumoProcessoPanel({ resumo }: ResumoProcessoPanelProps) {
             resumo.valorBens && resumo.valorBensMoeda
               ? formatValorNaMoeda(
                   resumo.valorBens,
-                  buscarRegimePorCodigo(resumo.valorBensMoeda).simbolo
+                  buscarRegimePorCodigo(resumo.valorBensMoeda).sigla
                 )
               : "—"
           }
@@ -66,7 +66,7 @@ export function ResumoProcessoPanel({ resumo }: ResumoProcessoPanelProps) {
             resumo.ufespEncontrada !== null && resumo.ufespMoeda !== null
               ? formatValorNaMoeda(
                   resumo.ufespEncontrada,
-                  buscarRegimePorCodigo(resumo.ufespMoeda).simbolo
+                  buscarRegimePorCodigo(resumo.ufespMoeda).sigla
                 )
               : "—"
           }

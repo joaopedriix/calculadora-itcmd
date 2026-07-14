@@ -82,13 +82,13 @@ export function MemorialCalculo({
           />
           <LinhaMemorial
             label="Moeda original do valor dos bens"
-            valor={`${resultado.conversaoMonetaria.valorBens.moeda.nome} (${resultado.conversaoMonetaria.valorBens.moeda.simbolo})`}
+            valor={`${resultado.conversaoMonetaria.valorBens.moeda.moeda} (${resultado.conversaoMonetaria.valorBens.moeda.sigla})`}
           />
           <LinhaMemorial
             label="Valor original dos bens"
             valor={formatValorNaMoeda(
               calculo.valorBens,
-              resultado.conversaoMonetaria.valorBens.moeda.simbolo
+              resultado.conversaoMonetaria.valorBens.moeda.sigla
             )}
           />
           <LinhaMemorial
@@ -98,9 +98,9 @@ export function MemorialCalculo({
           <LinhaMemorial
             label="Fator de conversão (valor dos bens)"
             valor={
-              resultado.conversaoMonetaria.valorBens.moeda.codigo === "real"
+              resultado.conversaoMonetaria.valorBens.moeda.id === "real"
                 ? "Não se aplica (já em Real)"
-                : `÷ ${resultado.conversaoMonetaria.valorBens.moeda.fatorParaReal.toLocaleString("pt-BR")}`
+                : `÷ ${resultado.conversaoMonetaria.valorBens.moeda.fatorConversao.toLocaleString("pt-BR")}`
             }
           />
           <LinhaMemorial
@@ -115,7 +115,7 @@ export function MemorialCalculo({
             label="UFESP original (moeda da época)"
             valor={formatValorNaMoeda(
               resultado.ufespUtilizada.valor,
-              resultado.conversaoMonetaria.ufespEpoca.moeda.simbolo
+              resultado.conversaoMonetaria.ufespEpoca.moeda.sigla
             )}
           />
           <LinhaMemorial
@@ -125,9 +125,9 @@ export function MemorialCalculo({
           <LinhaMemorial
             label="Fator de conversão (UFESP da época)"
             valor={
-              resultado.conversaoMonetaria.ufespEpoca.moeda.codigo === "real"
+              resultado.conversaoMonetaria.ufespEpoca.moeda.id === "real"
                 ? "Não se aplica (já em Real)"
-                : `÷ ${resultado.conversaoMonetaria.ufespEpoca.moeda.fatorParaReal.toLocaleString("pt-BR")}`
+                : `÷ ${resultado.conversaoMonetaria.ufespEpoca.moeda.fatorConversao.toLocaleString("pt-BR")}`
             }
           />
           <LinhaMemorial

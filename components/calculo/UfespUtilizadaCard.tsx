@@ -55,7 +55,7 @@ export function UfespUtilizadaCard({ ufespUtilizada }: UfespUtilizadaCardProps) 
             label="Valor da UFESP"
             valor={formatValorNaMoeda(
               ufespUtilizada.valor,
-              buscarRegimePorCodigo(ufespUtilizada.moeda).simbolo
+              buscarRegimePorCodigo(ufespUtilizada.moeda).sigla
             )}
           />
           <Campo

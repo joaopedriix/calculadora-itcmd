@@ -22,7 +22,7 @@ function paraLinhas(registros: UfespRecord[]): LinhaExportacao[] {
     Mês: registro.mes,
     Dia: registro.dia,
     "Valor da UFESP": registro.valor,
-    Moeda: buscarRegimePorCodigo(registro.moeda).nome,
+    Moeda: buscarRegimePorCodigo(registro.moeda).moeda,
     "Base Legal": registro.baseLegal ?? "",
     Fonte: registro.fonte,
     Observações: registro.observacoes ?? "",

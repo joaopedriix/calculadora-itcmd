@@ -1,4 +1,4 @@
-import { converterParaReal, converterUFESP, resolverMoeda } from "@/services/conversaoMonetariaService"
+import { converterValorParaReal, converterUFESPParaReal, resolverMoeda } from "@/services/conversaoMonetariaService"
 import { buscarUFESP, buscarUFESPAtual } from "@/services/ufespService"
 import type { DadosCalculo, ResultadoCalculo } from "@/types"
 
@@ -22,7 +22,7 @@ export class UfespNaoEncontradaError extends Error {
  * Quantidade de UFESP = Valor dos Bens ÷ UFESP da época.
  *
  * Os dois valores devem estar na MESMA moeda (normalmente já convertidos
- * para Real por `converterParaReal`/`converterUFESP` antes de chegar aqui —
+ * para Real por `converterValorParaReal`/`converterUFESPParaReal` antes de chegar aqui —
  * ver `calcularItcmdPorUfesp`). Dividir valores em moedas diferentes sem
  * conversão prévia produz um resultado sem sentido.
  */
@@ -103,8 +103,8 @@ function calcularItcmdPorUfesp(dados: DadosCalculo): ResultadoCalculo {
   // moeda da UFESP da época é sempre a vigente na própria data do registro
   // (nunca escolhida manualmente — é inerente à tabela oficial).
   const moedaValorBens = resolverMoeda(dados.moedaValorInformado, dados.dataFalecimento)
-  const conversaoValorBens = converterParaReal(dados.valorBens, moedaValorBens)
-  const conversaoUfespEpoca = converterUFESP(registroEpoca.valor, registroEpoca.dataInicioVigencia)
+  const conversaoValorBens = converterValorParaReal(dados.valorBens, moedaValorBens)
+  const conversaoUfespEpoca = converterUFESPParaReal(registroEpoca.valor, registroEpoca.dataInicioVigencia)
 
   const quantidadeUfesp = calcularQuantidadeUfesp(
     conversaoValorBens.valorConvertido,

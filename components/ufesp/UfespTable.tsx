@@ -99,11 +99,11 @@ export function UfespTable({
                 <TableCell className="font-medium tabular-nums">
                   {formatValorNaMoeda(
                     registro.valor,
-                    buscarRegimePorCodigo(registro.moeda).simbolo
+                    buscarRegimePorCodigo(registro.moeda).sigla
                   )}
                 </TableCell>
                 <TableCell className="whitespace-nowrap text-muted-foreground">
-                  {buscarRegimePorCodigo(registro.moeda).nome}
+                  {buscarRegimePorCodigo(registro.moeda).moeda}
                 </TableCell>
                 <TableCell
                   className="max-w-48 truncate text-muted-foreground"

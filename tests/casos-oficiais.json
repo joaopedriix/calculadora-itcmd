@@ -1,0 +1,33 @@
+{
+  "casos": [
+    {
+      "id": "historico-1989-03-10",
+      "descricao": "Óbito em 10/03/1989 — caso oficial validado pelo escritório de advocacia",
+      "entrada": {
+        "dataFalecimento": "1989-03-10",
+        "valorBens": 16189.1,
+        "moedaValorInformado": "auto",
+        "aliquotaItcmd": 4,
+        "percentualMulta": 20
+      },
+      "esperado": {
+        "moedaValorBens": "cruzado_novo",
+        "moedaUfesp": "cruzado_novo",
+        "ufespOriginal": 10.88,
+        "quantidadeUfespExata": 1487.96875,
+        "referenciaAdvogado": {
+          "dataValidacao": "2026-07-14",
+          "ufespAtualNaValidacao": 38.42,
+          "valorBensConvertidoParaReal": 0.005886945454545455,
+          "ufespConvertidaParaReal": 0.000003956363636363637,
+          "quantidadeUfesp": 1487.96875002392,
+          "valorAtualizado": 57167.75937591899,
+          "valorItcmd": 2286.71,
+          "valorMulta": 457.34,
+          "valorTotal": 2744.05
+        }
+      },
+      "observacoes": "Os campos de altíssima precisão dentro de 'referenciaAdvogado' (valorBensConvertidoParaReal, quantidadeUfesp, valorAtualizado) divergem do valor calculado pelo sistema a partir da 8ª–9ª casa decimal. Isso NÃO é um erro de fator de conversão — o fator usado (1 Cruzado Novo = 1/2.750.000 Real) foi verificado contra o Banco Central do Brasil e é o mesmo que reproduz exatamente 'ufespConvertidaParaReal' e todos os valores finais em Real. A divergência é ruído de ponto flutuante (IEEE-754) do caminho de cálculo usado na ferramenta de referência do escritório (provavelmente planilha), que soma erros de arredondamento em ordem diferente da nossa. O valor matematicamente exato de quantidadeUfesp é 1487,96875 (fração exata 16189,10 ÷ 10,88 = 809455/544); tanto o valor do sistema quanto o do advogado são variações desse valor dentro da margem de ruído esperada para double-precision. Os valores finais em Real que efetivamente importam para a guia — ITCMD, Multa e Total — batem exatamente. 'ufespAtualNaValidacao' é um retrato do momento da validação: o teste automatizado usa a UFESP vigente no momento em que roda, não este número fixo, porque a UFESP atual muda todo ano por natureza do próprio método de atualização — não faz sentido este caso 'quebrar' quando a tabela de UFESP for legitimamente atualizada em anos futuros."
+    }
+  ]
+}

@@ -33,16 +33,16 @@ function BlocoConversao({
   detalhe: ConversaoMonetariaDetalhe
 }) {
   const { moeda, valorOriginal, valorConvertido } = detalhe
-  const jaEmReal = moeda.codigo === "real"
+  const jaEmReal = moeda.id === "real"
 
   return (
     <div className="space-y-3">
       <h4 className="text-sm font-semibold">{titulo}</h4>
       <dl className="grid gap-3 sm:grid-cols-2">
-        <Campo label="Moeda original" valor={`${moeda.nome} (${moeda.simbolo})`} />
+        <Campo label="Moeda original" valor={`${moeda.moeda} (${moeda.sigla})`} />
         <Campo
           label="Valor original"
-          valor={`${moeda.simbolo} ${valorOriginal.toLocaleString("pt-BR", {
+          valor={`${moeda.sigla} ${valorOriginal.toLocaleString("pt-BR", {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })}`}
@@ -50,14 +50,15 @@ function BlocoConversao({
         <Campo label="Moeda final" valor="Real (R$)" />
         <Campo label="Valor convertido" valor={formatCurrencyPreciso(valorConvertido)} />
         <Campo
-          label="Fator aplicado"
+          label="Fator de conversão"
           valor={
             jaEmReal
               ? "Não se aplica (já em Real)"
-              : `÷ ${formatadorFator.format(moeda.fatorParaReal)}`
+              : `÷ ${formatadorFator.format(moeda.fatorConversao)}`
           }
         />
         <Campo label="Base legal" valor={moeda.baseLegal} />
+        <Campo label="Fonte" valor={moeda.fonte} />
       </dl>
     </div>
   )

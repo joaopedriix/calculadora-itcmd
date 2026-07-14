@@ -18,17 +18,26 @@ export type CodigoMoeda =
 export const MOEDA_AUTOMATICA = "auto" as const
 export type MoedaSelecionada = CodigoMoeda | typeof MOEDA_AUTOMATICA
 
-/** Um padrão monetário histórico, com o fator para converter 1 unidade dele em Real. */
+/**
+ * Um padrão monetário histórico, com o fator para converter 1 unidade dele em
+ * Real. Todo registro da base histórica de moedas (`HISTORICO_MOEDAS` em
+ * `services/conversaoMonetariaService.ts`) segue exatamente este schema —
+ * nenhuma conversão no sistema usa um fator fora desta base.
+ */
 export interface RegimeMonetario {
-  codigo: CodigoMoeda
-  nome: string
-  simbolo: string
-  dataInicioVigencia: Date
+  /** Mesmo valor de `CodigoMoeda` — identificador único do regime. */
+  id: CodigoMoeda
+  /** Nome da moeda (ex.: "Cruzeiro Real"). */
+  moeda: string
+  /** Símbolo usado pela fonte oficial (ex.: "CR$"). */
+  sigla: string
+  dataInicio: Date
   /** `null` = ainda vigente (somente o Real). */
-  dataFimVigencia: Date | null
+  dataFim: Date | null
   /** Quantas unidades desta moeda equivalem a 1 Real. */
-  fatorParaReal: number
+  fatorConversao: number
   baseLegal: string
+  fonte: string
   observacoes?: string
 }
 

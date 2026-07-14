@@ -167,7 +167,7 @@ export function UfespFormDialog({
               <Badge variant="secondary">
                 Moeda{" "}
                 {dataInicioVigencia
-                  ? `${identificarMoeda(dataInicioVigencia).nome} (${identificarMoeda(dataInicioVigencia).simbolo})`
+                  ? `${identificarMoeda(dataInicioVigencia).moeda} (${identificarMoeda(dataInicioVigencia).sigla})`
                   : "—"}
               </Badge>
             </div>

@@ -53,7 +53,7 @@ export function paraRegistro(bruto: UfespRecordJson): UfespRecord {
     // Nunca lida do JSON: sempre derivada da própria data de vigência, para
     // nunca divergir da cadeia histórica oficial (ver
     // services/conversaoMonetariaService.ts).
-    moeda: identificarMoeda(dataInicioVigencia).codigo,
+    moeda: identificarMoeda(dataInicioVigencia).id,
     baseLegal: bruto.baseLegal,
     fonte: bruto.fonte,
     observacoes: bruto.observacoes,

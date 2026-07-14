@@ -8,7 +8,7 @@ import {
   calcularValorAtualizado,
   calcularValorFinal,
 } from "@/services/calculoService"
-import { converterParaReal, converterUFESP, resolverMoeda } from "@/services/conversaoMonetariaService"
+import { converterValorParaReal, converterUFESPParaReal, resolverMoeda } from "@/services/conversaoMonetariaService"
 import { buscarUFESP, buscarUFESPAtual } from "@/services/ufespService"
 import type { CalculoFormValues } from "@/lib/validations"
 import { MOEDA_AUTOMATICA, type CodigoMoeda } from "@/types"
@@ -58,7 +58,7 @@ export function useResumoProcesso(
     let valorTotal: number | null = null
 
     if (dataFalecimento) {
-      valorBensMoeda = resolverMoeda(moedaValorInformado ?? MOEDA_AUTOMATICA, dataFalecimento).codigo
+      valorBensMoeda = resolverMoeda(moedaValorInformado ?? MOEDA_AUTOMATICA, dataFalecimento).id
     }
 
     if (dataFalecimento && valorBens && valorBens > 0 && ufespAtual !== null) {
@@ -72,8 +72,8 @@ export function useResumoProcesso(
           moedaValorInformado ?? MOEDA_AUTOMATICA,
           dataFalecimento
         )
-        const conversaoValorBens = converterParaReal(valorBens, moedaValorBens)
-        const conversaoUfespEpoca = converterUFESP(registro.valor, registro.dataInicioVigencia)
+        const conversaoValorBens = converterValorParaReal(valorBens, moedaValorBens)
+        const conversaoUfespEpoca = converterUFESPParaReal(registro.valor, registro.dataInicioVigencia)
 
         const quantidadeUfesp = calcularQuantidadeUfesp(
           conversaoValorBens.valorConvertido,

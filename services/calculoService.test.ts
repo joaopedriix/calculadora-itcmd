@@ -70,8 +70,8 @@ describe("executarCalculo — regressão com dado oficial (15/05/1991)", () => {
 
   it("expõe a conversão monetária auditável dos dois lados da divisão", () => {
     const resultado = executarCalculo(dadosBase)
-    expect(resultado.conversaoMonetaria.valorBens.moeda.codigo).toBe("cruzeiro_1990")
-    expect(resultado.conversaoMonetaria.ufespEpoca.moeda.codigo).toBe("cruzeiro_1990")
+    expect(resultado.conversaoMonetaria.valorBens.moeda.id).toBe("cruzeiro_1990")
+    expect(resultado.conversaoMonetaria.ufespEpoca.moeda.id).toBe("cruzeiro_1990")
     // Mesma moeda dos dois lados => a divisão dá o mesmo resultado de sempre.
     expect(resultado.conversaoMonetaria.valorBens.valorConvertido).toBeCloseTo(
       dadosBase.valorBens / 2_750_000,

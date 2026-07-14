@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/select"
 import { TIPOS_CALCULO } from "@/constants/tiposCalculo"
 import type { CalculoFormValues } from "@/lib/validations"
-import { identificarMoeda, listarMoedasDisponiveis } from "@/services/conversaoMonetariaService"
+import { identificarMoeda, obterHistoricoConversao } from "@/services/conversaoMonetariaService"
 import { MOEDA_AUTOMATICA } from "@/types"
 
 interface DadosCalculoSectionProps {
@@ -33,16 +33,16 @@ const ITEMS_TIPO_CALCULO = Object.fromEntries(
   TIPOS_CALCULO.map(({ value, label }) => [value, label])
 )
 
-function rotuloMoeda(regime: ReturnType<typeof listarMoedasDisponiveis>[number]): string {
-  const anoInicio = regime.dataInicioVigencia.getFullYear()
-  const anoFim = regime.dataFimVigencia?.getFullYear() ?? "hoje"
-  return `${regime.nome} (${regime.simbolo}, ${anoInicio}–${anoFim})`
+function rotuloMoeda(regime: ReturnType<typeof obterHistoricoConversao>[number]): string {
+  const anoInicio = regime.dataInicio.getFullYear()
+  const anoFim = regime.dataFim?.getFullYear() ?? "hoje"
+  return `${regime.moeda} (${regime.sigla}, ${anoInicio}–${anoFim})`
 }
 
-const MOEDAS_DISPONIVEIS = listarMoedasDisponiveis()
+const MOEDAS_DISPONIVEIS = obterHistoricoConversao()
 const ITEMS_MOEDA = {
   [MOEDA_AUTOMATICA]: "Detectar automaticamente pela data (padrão)",
-  ...Object.fromEntries(MOEDAS_DISPONIVEIS.map((regime) => [regime.codigo, rotuloMoeda(regime)])),
+  ...Object.fromEntries(MOEDAS_DISPONIVEIS.map((regime) => [regime.id, rotuloMoeda(regime)])),
 }
 
 /** Seção 2 — dados que efetivamente alimentam o cálculo de ITCMD. */
@@ -123,7 +123,7 @@ export function DadosCalculoSection({ form }: DadosCalculoSectionProps) {
               error={errors.moedaValorInformado}
               description={
                 moedaDetectada
-                  ? `Moeda detectada pela data: ${moedaDetectada.nome} (${moedaDetectada.simbolo}).`
+                  ? `Moeda detectada pela data: ${moedaDetectada.moeda} (${moedaDetectada.sigla}).`
                   : undefined
               }
             >
@@ -144,7 +144,7 @@ export function DadosCalculoSection({ form }: DadosCalculoSectionProps) {
                         {ITEMS_MOEDA[MOEDA_AUTOMATICA]}
                       </SelectItem>
                       {MOEDAS_DISPONIVEIS.map((regime) => (
-                        <SelectItem key={regime.codigo} value={regime.codigo}>
+                        <SelectItem key={regime.id} value={regime.id}>
                           {rotuloMoeda(regime)}
                         </SelectItem>
                       ))}

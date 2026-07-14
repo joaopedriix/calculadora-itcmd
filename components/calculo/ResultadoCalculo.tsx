@@ -49,7 +49,7 @@ export function ResultadoCalculo({ resultado }: ResultadoCalculoProps) {
             label="UFESP utilizada (época)"
             valor={formatValorNaMoeda(
               resultado.ufespUtilizada.valor,
-              buscarRegimePorCodigo(resultado.ufespUtilizada.moeda).simbolo
+              buscarRegimePorCodigo(resultado.ufespUtilizada.moeda).sigla
             )}
           />
           <LinhaResultado
