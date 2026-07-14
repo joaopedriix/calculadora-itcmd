@@ -3,6 +3,7 @@ export interface UfespUtilizada {
   valor: number
   dataInicioVigencia: Date
   dataFimVigencia: Date | null
+  baseLegal?: string
   fonte: string
   observacoes?: string
 }

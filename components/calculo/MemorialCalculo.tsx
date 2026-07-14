@@ -98,6 +98,10 @@ export function MemorialCalculo({
             )}
           />
           <LinhaMemorial
+            label="Base Legal"
+            valor={resultado.ufespUtilizada.baseLegal ?? ""}
+          />
+          <LinhaMemorial
             label="Fonte da informação"
             valor={resultado.ufespUtilizada.fonte}
           />

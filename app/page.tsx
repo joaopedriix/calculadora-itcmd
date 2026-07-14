@@ -13,11 +13,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { buscarUFESPAtual, listarTodas } from "@/services/ufespService"
+import { buscarUFESPAtual, listarUFESP } from "@/services/ufespService"
 import { formatCurrency, formatDate } from "@/utils/formatters"
 
 export default function DashboardPage() {
-  const registros = listarTodas()
+  const registros = listarUFESP()
   const ufespAtual = buscarUFESPAtual()
 
   return (

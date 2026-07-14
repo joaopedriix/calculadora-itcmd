@@ -31,28 +31,61 @@ npm run lint    # ESLint
 - **Calcular ITCMD** (`/calcular`) — a calculadora em si.
 - **Tabela Histórica UFESP** (`/ufesp`) — módulo administrativo (CRUD) da
   tabela de UFESP: filtros, criação/edição/exclusão/visualização de
-  registros, exportação em CSV/Excel e um botão de importação preparado
-  para integração futura.
+  registros, exportação em CSV/Excel e um botão "Atualizar Base Oficial" que
+  reimporta a tabela direto da SEFAZ-SP.
 - **Configurações** (`/configuracoes`) — reservada para evoluções futuras.
 
-## ⚠️ Onde alimentar a tabela histórica da UFESP (IMPORTANTE)
+## Tabela histórica da UFESP: fonte e importação automática
 
-Os dados de UFESP que acompanham este sistema **não são os valores
-oficiais** — são placeholders (uma progressão artificial de R$ 0,01 por mês,
-gerados em `data/ufesp.ts`) que existem apenas para permitir testar o fluxo
-completo do sistema ponta a ponta.
+A tabela de UFESP usada pela calculadora vem **exclusivamente** da página
+oficial da Secretaria da Fazenda do Estado de São Paulo
+([legislacao.fazenda.sp.gov.br/Paginas/ValoresDaUFESP.aspx](https://legislacao.fazenda.sp.gov.br/Paginas/ValoresDaUFESP.aspx)).
+Nenhum valor é digitado manualmente: `data/ufesp.json` é gerado por
+`scripts/importar-ufesp.ts`, que abre essa página oficial e extrai a tabela
+histórica completa (1989–hoje).
 
-Antes de usar a calculadora para gerar guias reais, alimente a tabela oficial
-da SEFAZ-SP **pela própria tela "Tabela Histórica UFESP"** (`/ufesp`), criando
-um registro por período de vigência — não precisa editar código. `data/ufesp.ts`
-é usado apenas como carga inicial (seed) na primeira execução.
+Para atualizar a base, rode:
+
+```bash
+npm run importar-ufesp
+```
+
+ou clique em **"Atualizar Base Oficial"** na tela `/ufesp` (mesma lógica,
+disparada via `app/api/ufesp/importar/route.ts`). Em ambos os casos, a base
+existente só é substituída depois que a importação e as validações de
+sanidade terminam com sucesso — se a importação falhar, `data/ufesp.json`
+permanece intacto e o erro é registrado no log.
+
+### Por que scraping (e não uma API)
+
+A página oficial não expõe API, JSON, XML nem chamadas AJAX com os dados — o
+conteúdo é renderizado no DOM por um componente SharePoint client-side
+rendering. Por isso o importador usa um Chromium headless (Playwright) para
+renderizar a página e ler a tabela já processada, em vez de um `fetch`/`curl`
+simples (ver `scripts/lib/ufespScraper.ts`).
+
+### Granularidade e período de vigência
 
 Cada registro tem um período de vigência explícito
-(`dataInicioVigencia` até `dataFimVigencia`, esta última opcional para
-"ainda vigente"), porque a UFESP nem sempre mudou apenas uma vez por ano —
-em diversos períodos históricos houve reajustes mensais e até diários. A
+(`dataInicioVigencia` até `dataFimVigencia`), porque a UFESP nem sempre mudou
+apenas uma vez por ano — a fonte oficial já publicou reajustes anuais,
+semestrais, mensais e diários em diferentes épocas. O importador
+(`scripts/lib/ufespParser.ts`) trata as quatro granularidades e nunca assume
+um valor único por ano; em dias sem publicação (fins de semana/feriados), o
+valor vigente é o último publicado (carry-forward), nunca um valor novo. A
 busca usada pela calculadora localiza sempre o registro cuja vigência
 contempla exatamente a data do falecimento, nunca apenas por ano/mês.
+
+### Valores na moeda da época (sem conversão)
+
+Os registros anteriores a 01/07/1994 são gravados na moeda oficial vigente
+naquela data (Cruzados Novos, Cruzeiros ou Cruzeiros Reais), exatamente como
+publicado pela fonte — nunca convertidos para Real. Isso é necessário para
+que a divisão "valor dos bens ÷ UFESP da época" (ver
+`services/calculoService.ts`) continue correta quando o valor dos bens também
+estiver expresso na moeda da época, como consta no inventário original. Cada
+registro nessas condições traz uma observação automática indicando a moeda
+vigente.
 
 ### Armazenamento em memória (nesta versão)
 
@@ -62,9 +95,9 @@ Isso significa que:
 - Alterações feitas na tela `/ufesp` refletem imediatamente na calculadora e
   no dashboard **enquanto a aba não for recarregada** (navegação entre
   páginas do menu lateral não perde os dados).
-- Um recarregamento completo da página (F5) volta para os dados de exemplo
-  de `data/ufesp.ts`.
-- Nenhum componente acessa `data/ufesp.ts` diretamente — tudo passa por
+- Um recarregamento completo da página (F5) volta para a base oficial
+  gravada em `data/ufesp.json`.
+- Nenhum componente acessa `data/ufesp.ts`/`data/ufesp.json` diretamente — tudo passa por
   `services/ufespService.ts`, o que permite trocar esse armazenamento por um
   banco de dados (Supabase/PostgreSQL via Prisma) no futuro sem alterar a
   interface.
@@ -77,6 +110,7 @@ app/
   calcular/           Calculadora de ITCMD
   ufesp/              Tela administrativa da Tabela Histórica UFESP
   configuracoes/      Reservada para o futuro
+  api/ufesp/importar/ Rota que aciona o "Atualizar Base Oficial" no servidor
 components/
   ui/                 Primitivos shadcn/ui (Button, Card, Table, Dialog, Sidebar...)
   form/               Campos reutilizáveis (DatePicker, CurrencyInput, FormRow)
@@ -89,8 +123,9 @@ hooks/                useResumoProcesso (prévia em tempo real do painel lateral
 lib/                  Validações Zod e utilitário cn() do shadcn
 utils/                Formatadores (moeda, data, UFESP) e exportação CSV/Excel
 types/                Interfaces TypeScript compartilhadas
-data/                 Carga inicial (seed) da tabela histórica da UFESP
+data/                 ufesp.json (base oficial) + adaptador ufesp.ts (seed)
 constants/            Alíquota/multa padrão, tipos de cálculo
+scripts/              Importador oficial da UFESP (scraper + parser + CLI)
 ```
 
 Toda a matemática do cálculo vive em `services/calculoService.ts`, isolada da
@@ -102,11 +137,11 @@ buscarUFESP(data)       // localiza o registro vigente numa data exata
 buscarUFESPAtual()      // UFESP vigente hoje
 buscarPorAno(ano)
 buscarPorPeriodo(inicio, fim)
-listarTodas()
+listarUFESP()
 adicionar(dados)
 editar(id, dados)
 remover(id)
-importarTabelaUFESP()   // preparado para o futuro, ainda não implementado
+importarTabelaUFESP()   // reimporta da SEFAZ-SP via app/api/ufesp/importar
 ```
 
 ## Preparado para o futuro
@@ -116,9 +151,10 @@ A estrutura foi organizada para facilitar, sem exigir retrabalho:
 - **Banco de dados / API**: troque a implementação interna de
   `ufespService.ts` (hoje um array em memória) por chamadas a
   Prisma/Supabase/REST — a assinatura das funções não precisa mudar.
-- **Importação automática**: `importarTabelaUFESP()` já existe como contrato
-  documentado, pronta para ser implementada com uma integração ao site da
-  SEFAZ-SP (sincronização anual + atualização manual).
+- **Sincronização automática**: hoje a reimportação é sob demanda (CLI ou
+  botão); rodar `scripts/importar-ufesp.ts` num cron/job agendado (ex.: todo
+  dezembro, quando a SEFAZ-SP costuma publicar o Comunicado do ano seguinte)
+  dá sincronização anual sem exigir nenhuma mudança de arquitetura.
 - **Novos tipos de cálculo**: adicione um novo valor ao union `TipoCalculo`
   (`types/calculo.ts`), uma nova opção em `constants/tiposCalculo.ts` e um novo
   `case` em `executarCalculo` (`services/calculoService.ts`).
@@ -135,8 +171,20 @@ A estrutura foi organizada para facilitar, sem exigir retrabalho:
 
 - Uso pensado para um único advogado; não há autenticação nem multiusuário.
 - Nada é persistido em banco — os dados vivem apenas na sessão do navegador
-  (ver "Armazenamento em memória" acima).
-- A tabela de UFESP precisa ser alimentada manualmente pela tela `/ufesp`.
+  (ver "Armazenamento em memória" acima); `data/ufesp.json` é a base
+  gravada em disco, mas as edições feitas pela tela `/ufesp` só ficam em
+  memória até uma reimportação ou até existir banco de dados.
+- O botão "Atualizar Base Oficial" roda um Chromium headless no servidor.
+  Localmente usa o Chromium do pacote `playwright`; em produção na Vercel (ou
+  outro serverless com as mesmas variáveis de ambiente) usa
+  `@sparticuz/chromium` + `playwright-core` automaticamente — não precisa de
+  configuração adicional (ver `scripts/lib/ufespScraper.ts`).
+- Em ambiente serverless o botão **não persiste** `data/ufesp.json` em disco
+  (só `/tmp` é gravável em produção lá) — a atualização vale só para a sessão
+  atual e some no próximo recarregamento/deploy; a UI avisa isso no toast. Para
+  persistir de verdade, rode `npm run importar-ufesp` localmente e faça commit
+  do `data/ufesp.json` atualizado, ou troque o armazenamento por um banco de
+  dados.
 - "Exportar Excel" gera um arquivo SpreadsheetML (`.xls`), não um `.xlsx`
   binário — decisão deliberada para evitar a dependência `xlsx`/SheetJS, que
   tem vulnerabilidades de alta severidade sem correção publicada. O arquivo

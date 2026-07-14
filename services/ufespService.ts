@@ -1,4 +1,4 @@
-import { UFESP_SEED } from "@/data/ufesp"
+import { paraRegistro, UFESP_SEED, type UfespRecordJson } from "@/data/ufesp"
 import type { EdicaoUfespInput, NovoUfespInput, UfespRecord } from "@/types"
 
 /**
@@ -7,9 +7,10 @@ import type { EdicaoUfespInput, NovoUfespInput, UfespRecord } from "@/types"
  * escrita passa pelas funções abaixo.
  *
  * Hoje os registros vivem em memória (array module-level, populado a partir
- * do seed de exemplo). A API foi desenhada para que, no futuro, esta
- * implementação seja trocada por chamadas a um banco de dados (Supabase /
- * PostgreSQL via Prisma) sem que a interface precise mudar uma linha sequer.
+ * da base oficial importada em `data/ufesp.json`). A API foi desenhada para
+ * que, no futuro, esta implementação seja trocada por chamadas a um banco de
+ * dados (Supabase / PostgreSQL via Prisma) sem que a interface precise mudar
+ * uma linha sequer.
  *
  * Nota de arquitetura enquanto o armazenamento for em memória: qualquer
  * página que leia ou escreva UFESP precisa ser Client Component ("use
@@ -87,7 +88,7 @@ export function buscarPorPeriodo(inicio: Date, fim: Date): UfespRecord[] {
 }
 
 /** Lista completa, ordenada cronologicamente pelo início de vigência. */
-export function listarTodas(): UfespRecord[] {
+export function listarUFESP(): UfespRecord[] {
   return ordenarPorVigencia(registros)
 }
 
@@ -100,6 +101,7 @@ export function adicionar(dados: NovoUfespInput): UfespRecord {
     dataFimVigencia: dados.dataFimVigencia ?? null,
     ...derivarAnoMesDia(dados.dataInicioVigencia),
     valor: dados.valor,
+    baseLegal: dados.baseLegal,
     fonte: dados.fonte,
     observacoes: dados.observacoes,
     createdAt: agora,
@@ -123,6 +125,7 @@ export function editar(id: string, dados: EdicaoUfespInput): UfespRecord {
     dataFimVigencia: dados.dataFimVigencia ?? null,
     ...derivarAnoMesDia(dados.dataInicioVigencia),
     valor: dados.valor,
+    baseLegal: dados.baseLegal,
     fonte: dados.fonte,
     observacoes: dados.observacoes,
     updatedAt: new Date(),
@@ -138,17 +141,26 @@ export function remover(id: string): void {
 }
 
 /**
- * PREPARADO PARA IMPLEMENTAÇÃO FUTURA — ainda não funcional nesta versão.
+ * Reimporta a tabela histórica direto da página oficial da SEFAZ-SP, via
+ * `app/api/ufesp/importar/route.ts` (que roda o scraper/parser no servidor).
+ * Em caso de sucesso, os registros em memória são substituídos pelos
+ * recém-importados; em caso de erro, a base em memória permanece intacta e a
+ * mensagem amigável devolvida pela API é repassada para quem chamou (a tela
+ * `/ufesp` exibe isso em um toast).
  *
- * Deverá importar automaticamente a tabela histórica da UFESP a partir do
- * site oficial da Secretaria da Fazenda do Estado de São Paulo, permitindo:
- *   - sincronização anual da tabela;
- *   - atualização manual disparada pelo administrador (este botão);
- *   - substituição/complementação dos registros hoje mantidos em memória.
- *
- * Quando implementada, deve continuar sendo o único ponto de entrada de
- * dados externos — o restante da aplicação não deve saber de onde vieram.
+ * `persistido` indica se a API também conseguiu gravar `data/ufesp.json` em
+ * disco (só acontece local/self-hosted — em ambiente serverless como a
+ * Vercel só é possível atualizar esta sessão, ver `ufespWriter.ts`).
  */
-export async function importarTabelaUFESP(): Promise<void> {
-  throw new Error("Importação automática da tabela UFESP ainda não implementada.")
+export async function importarTabelaUFESP(): Promise<{ total: number; persistido: boolean }> {
+  const resposta = await fetch("/api/ufesp/importar", { method: "POST" })
+  const corpo = await resposta.json()
+
+  if (!resposta.ok || !corpo.ok) {
+    throw new Error(corpo.message ?? "Falha ao importar a tabela oficial da UFESP.")
+  }
+
+  const novosRegistros = (corpo.registros as UfespRecordJson[]).map(paraRegistro)
+  registros = novosRegistros
+  return { total: novosRegistros.length, persistido: !!corpo.persistido }
 }

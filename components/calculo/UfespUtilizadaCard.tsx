@@ -58,6 +58,9 @@ export function UfespUtilizadaCard({ ufespUtilizada }: UfespUtilizadaCardProps) 
               ufespUtilizada.dataFimVigencia
             )}
           />
+          {ufespUtilizada.baseLegal && (
+            <Campo label="Base Legal" valor={ufespUtilizada.baseLegal} />
+          )}
           <Campo label="Fonte" valor={ufespUtilizada.fonte} />
           {ufespUtilizada.observacoes && (
             <div className="sm:col-span-2">

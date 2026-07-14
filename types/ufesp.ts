@@ -19,6 +19,8 @@ export interface UfespRecord {
   mes: number
   dia: number
   valor: number
+  /** Comunicado/ato normativo que fixou o valor, quando publicado pela fonte. */
+  baseLegal?: string
   fonte: string
   observacoes?: string
   createdAt: Date
@@ -30,6 +32,7 @@ export interface NovoUfespInput {
   dataInicioVigencia: Date
   dataFimVigencia?: Date | null
   valor: number
+  baseLegal?: string
   fonte: string
   observacoes?: string
 }

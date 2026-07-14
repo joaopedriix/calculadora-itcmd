@@ -65,6 +65,7 @@ export function UfespTable({
               <TableHead>Mês</TableHead>
               <TableHead>Dia</TableHead>
               <TableHead>Valor UFESP</TableHead>
+              <TableHead>Base Legal</TableHead>
               <TableHead>Fonte</TableHead>
               <TableHead>Observações</TableHead>
               <TableHead className="text-right">Ações</TableHead>
@@ -73,7 +74,7 @@ export function UfespTable({
           <TableBody>
             {registrosPagina.length === 0 && (
               <TableRow>
-                <TableCell colSpan={9} className="h-24 text-center text-muted-foreground">
+                <TableCell colSpan={10} className="h-24 text-center text-muted-foreground">
                   Nenhum registro encontrado para os filtros aplicados.
                 </TableCell>
               </TableRow>
@@ -95,6 +96,12 @@ export function UfespTable({
                 <TableCell>{registro.dia}</TableCell>
                 <TableCell className="font-medium tabular-nums">
                   {formatCurrency(registro.valor)}
+                </TableCell>
+                <TableCell
+                  className="max-w-48 truncate text-muted-foreground"
+                  title={registro.baseLegal}
+                >
+                  {registro.baseLegal || "—"}
                 </TableCell>
                 <TableCell className="max-w-40 truncate" title={registro.fonte}>
                   {registro.fonte}

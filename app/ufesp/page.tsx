@@ -30,15 +30,16 @@ import {
   buscarPorAno,
   editar,
   importarTabelaUFESP,
-  listarTodas,
+  listarUFESP,
   remover,
 } from "@/services/ufespService"
 import { exportarCSV, exportarExcel } from "@/utils/exportUfesp"
 import type { UfespRecord } from "@/types"
 
 export default function TabelaUfespPage() {
-  const [registros, setRegistros] = useState<UfespRecord[]>(() => listarTodas())
+  const [registros, setRegistros] = useState<UfespRecord[]>(() => listarUFESP())
   const [filtros, setFiltros] = useState<UfespFiltrosState>(FILTROS_VAZIOS)
+  const [importando, setImportando] = useState(false)
 
   const [formDialog, setFormDialog] = useState<{
     open: boolean
@@ -52,7 +53,7 @@ export default function TabelaUfespPage() {
   }>({ open: false })
 
   function atualizarRegistros() {
-    setRegistros(listarTodas())
+    setRegistros(listarUFESP())
   }
 
   const registrosFiltrados = useMemo(() => {
@@ -118,10 +119,26 @@ export default function TabelaUfespPage() {
   }
 
   async function importarBase() {
+    setImportando(true)
     try {
-      await importarTabelaUFESP()
-    } catch {
-      toast.info("Importação automática ainda não implementada nesta versão.")
+      const { total, persistido } = await importarTabelaUFESP()
+      atualizarRegistros()
+      if (persistido) {
+        toast.success(`Base oficial da UFESP atualizada: ${total} registros importados.`)
+      } else {
+        toast.success(`${total} registros importados nesta sessão.`, {
+          description:
+            "Este ambiente não grava em disco (ex.: Vercel) — a atualização não persiste após recarregar a página. Para persistir, rode \"npm run importar-ufesp\" localmente.",
+        })
+      }
+    } catch (erro) {
+      toast.error(
+        erro instanceof Error
+          ? erro.message
+          : "Falha ao importar a tabela oficial da UFESP."
+      )
+    } finally {
+      setImportando(false)
     }
   }
 
@@ -162,9 +179,14 @@ export default function TabelaUfespPage() {
                 </CardDescription>
               </div>
               <div className="flex flex-wrap gap-2">
-                <Button variant="outline" size="sm" onClick={importarBase}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={importarBase}
+                  disabled={importando}
+                >
                   <Upload />
-                  Importar Base
+                  {importando ? "Atualizando..." : "Atualizar Base Oficial"}
                 </Button>
                 <Button
                   variant="outline"

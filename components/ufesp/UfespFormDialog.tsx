@@ -45,6 +45,7 @@ function valoresPadrao(registro?: UfespRecord): UfespFormValues {
     dataInicioVigencia: registro?.dataInicioVigencia ?? new Date(),
     dataFimVigencia: registro?.dataFimVigencia ?? null,
     valor: registro?.valor ?? 0,
+    baseLegal: registro?.baseLegal ?? "",
     fonte: registro?.fonte ?? "",
     observacoes: registro?.observacoes ?? "",
   }
@@ -202,6 +203,15 @@ export function UfespFormDialog({
                 />
               </FormRow>
             </div>
+
+            <FormRow id="baseLegal" label="Base Legal" error={form.formState.errors.baseLegal}>
+              <Input
+                id="baseLegal"
+                placeholder="Ex.: Comunicado DICAR-88/25, de 17-12-2025"
+                disabled={somenteLeitura}
+                {...form.register("baseLegal")}
+              />
+            </FormRow>
 
             <FormRow
               id="observacoes"

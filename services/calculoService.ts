@@ -101,6 +101,7 @@ function calcularItcmdPorUfesp(dados: DadosCalculo): ResultadoCalculo {
       valor: registroEpoca.valor,
       dataInicioVigencia: registroEpoca.dataInicioVigencia,
       dataFimVigencia: registroEpoca.dataFimVigencia,
+      baseLegal: registroEpoca.baseLegal,
       fonte: registroEpoca.fonte,
       observacoes: registroEpoca.observacoes,
     },

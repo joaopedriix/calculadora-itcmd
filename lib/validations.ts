@@ -47,6 +47,7 @@ export const ufespFormSchema = z
     valor: z
       .number({ error: "Informe o valor da UFESP." })
       .positive({ error: "O valor da UFESP deve ser maior que zero." }),
+    baseLegal: z.string(),
     fonte: z
       .string()
       .trim()
