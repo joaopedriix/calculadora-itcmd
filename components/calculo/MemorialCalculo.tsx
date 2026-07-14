@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card"
 import {
   formatCurrency,
+  formatCurrencyPreciso,
   formatDate,
   formatPeriodoVigencia,
   formatUfesp,
@@ -79,16 +80,51 @@ export function MemorialCalculo({
             valor={formatDate(calculo.dataFalecimento)}
           />
           <LinhaMemorial
+            label="Moeda original do valor dos bens"
+            valor={`${resultado.conversaoMonetaria.valorBens.moeda.nome} (${resultado.conversaoMonetaria.valorBens.moeda.simbolo})`}
+          />
+          <LinhaMemorial
             label="Valor original dos bens"
             valor={formatCurrency(calculo.valorBens)}
+          />
+          <LinhaMemorial
+            label="Valor dos bens convertido para Real"
+            valor={formatCurrencyPreciso(resultado.conversaoMonetaria.valorBens.valorConvertido)}
+          />
+          <LinhaMemorial
+            label="Fator de conversão (valor dos bens)"
+            valor={
+              resultado.conversaoMonetaria.valorBens.moeda.codigo === "real"
+                ? "Não se aplica (já em Real)"
+                : `÷ ${resultado.conversaoMonetaria.valorBens.moeda.fatorParaReal.toLocaleString("pt-BR")}`
+            }
+          />
+          <LinhaMemorial
+            label="Base legal da conversão (valor dos bens)"
+            valor={resultado.conversaoMonetaria.valorBens.moeda.baseLegal}
           />
           <LinhaMemorial
             label="Data da UFESP utilizada"
             valor={formatDate(resultado.ufespUtilizada.dataInicioVigencia)}
           />
           <LinhaMemorial
-            label="UFESP utilizada"
-            valor={formatCurrency(resultado.ufespUtilizada.valor)}
+            label="UFESP original (moeda da época)"
+            valor={`${resultado.conversaoMonetaria.ufespEpoca.moeda.simbolo} ${resultado.ufespUtilizada.valor.toLocaleString(
+              "pt-BR",
+              { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+            )}`}
+          />
+          <LinhaMemorial
+            label="UFESP convertida para Real"
+            valor={formatCurrencyPreciso(resultado.conversaoMonetaria.ufespEpoca.valorConvertido)}
+          />
+          <LinhaMemorial
+            label="Fator de conversão (UFESP da época)"
+            valor={
+              resultado.conversaoMonetaria.ufespEpoca.moeda.codigo === "real"
+                ? "Não se aplica (já em Real)"
+                : `÷ ${resultado.conversaoMonetaria.ufespEpoca.moeda.fatorParaReal.toLocaleString("pt-BR")}`
+            }
           />
           <LinhaMemorial
             label="Período de vigência"

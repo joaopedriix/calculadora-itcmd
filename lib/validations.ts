@@ -1,6 +1,23 @@
 import { z } from "zod"
 
 /**
+ * Valores possíveis do campo "Moeda do Valor Informado" — `"auto"` (padrão,
+ * detecta pela data do falecimento) mais um código por padrão monetário
+ * histórico (ver `services/conversaoMonetariaService.ts`).
+ */
+export const MOEDAS_VALOR_INFORMADO = [
+  "auto",
+  "cruzeiro_1942",
+  "cruzeiro_novo",
+  "cruzeiro_1970",
+  "cruzado",
+  "cruzado_novo",
+  "cruzeiro_1990",
+  "cruzeiro_real",
+  "real",
+] as const
+
+/**
  * Schema único do formulário do dashboard. Os campos da Seção 1 (dados do
  * processo) são de preenchimento livre; as regras de negócio obrigatórias
  * (valor e data) incidem apenas sobre a Seção 2 (dados do cálculo).
@@ -21,6 +38,7 @@ export const calculoFormSchema = z.object({
   valorBens: z
     .number({ error: "Informe o valor dos bens." })
     .positive({ error: "O valor dos bens deve ser maior que zero." }),
+  moedaValorInformado: z.enum(MOEDAS_VALOR_INFORMADO),
   aliquotaItcmd: z
     .number({ error: "Informe a alíquota do ITCMD." })
     .min(0, { error: "A alíquota não pode ser negativa." })

@@ -1,4 +1,4 @@
-import { Controller, type UseFormReturn } from "react-hook-form"
+import { Controller, useWatch, type UseFormReturn } from "react-hook-form"
 import { Calculator } from "lucide-react"
 
 import {
@@ -22,6 +22,8 @@ import {
 } from "@/components/ui/select"
 import { TIPOS_CALCULO } from "@/constants/tiposCalculo"
 import type { CalculoFormValues } from "@/lib/validations"
+import { identificarMoeda, listarMoedasDisponiveis } from "@/services/conversaoMonetariaService"
+import { MOEDA_AUTOMATICA } from "@/types"
 
 interface DadosCalculoSectionProps {
   form: UseFormReturn<CalculoFormValues>
@@ -31,6 +33,18 @@ const ITEMS_TIPO_CALCULO = Object.fromEntries(
   TIPOS_CALCULO.map(({ value, label }) => [value, label])
 )
 
+function rotuloMoeda(regime: ReturnType<typeof listarMoedasDisponiveis>[number]): string {
+  const anoInicio = regime.dataInicioVigencia.getFullYear()
+  const anoFim = regime.dataFimVigencia?.getFullYear() ?? "hoje"
+  return `${regime.nome} (${regime.simbolo}, ${anoInicio}–${anoFim})`
+}
+
+const MOEDAS_DISPONIVEIS = listarMoedasDisponiveis()
+const ITEMS_MOEDA = {
+  [MOEDA_AUTOMATICA]: "Detectar automaticamente pela data (padrão)",
+  ...Object.fromEntries(MOEDAS_DISPONIVEIS.map((regime) => [regime.codigo, rotuloMoeda(regime)])),
+}
+
 /** Seção 2 — dados que efetivamente alimentam o cálculo de ITCMD. */
 export function DadosCalculoSection({ form }: DadosCalculoSectionProps) {
   const {
@@ -38,6 +52,14 @@ export function DadosCalculoSection({ form }: DadosCalculoSectionProps) {
     control,
     formState: { errors },
   } = form
+
+  const dataFalecimento = useWatch({ control, name: "dataFalecimento" })
+  const moedaValorInformado = useWatch({ control, name: "moedaValorInformado" })
+
+  const moedaDetectada =
+    dataFalecimento && moedaValorInformado === MOEDA_AUTOMATICA
+      ? identificarMoeda(dataFalecimento)
+      : null
 
   return (
     <Card>
@@ -91,6 +113,43 @@ export function DadosCalculoSection({ form }: DadosCalculoSectionProps) {
                     onBlur={field.onBlur}
                     aria-invalid={!!errors.valorBens}
                   />
+                )}
+              />
+            </FormRow>
+
+            <FormRow
+              id="moedaValorInformado"
+              label="Moeda do Valor Informado"
+              error={errors.moedaValorInformado}
+              description={
+                moedaDetectada
+                  ? `Moeda detectada pela data: ${moedaDetectada.nome} (${moedaDetectada.simbolo}).`
+                  : undefined
+              }
+            >
+              <Controller
+                control={control}
+                name="moedaValorInformado"
+                render={({ field }) => (
+                  <Select
+                    items={ITEMS_MOEDA}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  >
+                    <SelectTrigger id="moedaValorInformado" className="w-full">
+                      <SelectValue placeholder="Selecione a moeda" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={MOEDA_AUTOMATICA}>
+                        {ITEMS_MOEDA[MOEDA_AUTOMATICA]}
+                      </SelectItem>
+                      {MOEDAS_DISPONIVEIS.map((regime) => (
+                        <SelectItem key={regime.codigo} value={regime.codigo}>
+                          {rotuloMoeda(regime)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 )}
               />
             </FormRow>

@@ -8,8 +8,10 @@ import {
   calcularValorAtualizado,
   calcularValorFinal,
 } from "@/services/calculoService"
+import { converterParaReal, converterUFESP, resolverMoeda } from "@/services/conversaoMonetariaService"
 import { buscarUFESP, buscarUFESPAtual } from "@/services/ufespService"
 import type { CalculoFormValues } from "@/lib/validations"
+import { MOEDA_AUTOMATICA } from "@/types"
 
 export interface ResumoProcessoPreview {
   numeroProcesso: string
@@ -37,6 +39,7 @@ export function useResumoProcesso(
     nomeFalecido,
     dataFalecimento,
     valorBens,
+    moedaValorInformado,
     aliquotaItcmd,
     percentualMulta,
   } = valores
@@ -54,7 +57,17 @@ export function useResumoProcesso(
       if (registro) {
         ufespEncontrada = registro.valor
 
-        const quantidadeUfesp = calcularQuantidadeUfesp(valorBens, registro.valor)
+        const moedaValorBens = resolverMoeda(
+          moedaValorInformado ?? MOEDA_AUTOMATICA,
+          dataFalecimento
+        )
+        const conversaoValorBens = converterParaReal(valorBens, moedaValorBens)
+        const conversaoUfespEpoca = converterUFESP(registro.valor, registro.dataInicioVigencia)
+
+        const quantidadeUfesp = calcularQuantidadeUfesp(
+          conversaoValorBens.valorConvertido,
+          conversaoUfespEpoca.valorConvertido
+        )
         valorAtualizado = calcularValorAtualizado(quantidadeUfesp, ufespAtual)
 
         const valorItcmd = calcularItcmd(
@@ -86,6 +99,7 @@ export function useResumoProcesso(
     nomeFalecido,
     dataFalecimento,
     valorBens,
+    moedaValorInformado,
     aliquotaItcmd,
     percentualMulta,
   ])

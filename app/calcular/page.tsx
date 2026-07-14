@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Calculator, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
+import { ConversaoMonetariaCard } from "@/components/calculo/ConversaoMonetariaCard"
 import { DadosCalculoSection } from "@/components/calculo/DadosCalculoSection"
 import { MemorialCalculo } from "@/components/calculo/MemorialCalculo"
 import { ResultadoCalculo } from "@/components/calculo/ResultadoCalculo"
@@ -32,6 +33,7 @@ export default function CalcularPage() {
       nomeCliente: "",
       observacoes: "",
       valorBens: 0,
+      moedaValorInformado: "auto",
       aliquotaItcmd: ALIQUOTA_ITCMD_PADRAO,
       percentualMulta: PERCENTUAL_MULTA_PADRAO,
       tipoCalculo: "atualizacao_ufesp",
@@ -97,6 +99,7 @@ export default function CalcularPage() {
               <>
                 <ResultadoCalculo resultado={resultado} />
                 <UfespUtilizadaCard ufespUtilizada={resultado.ufespUtilizada} />
+                <ConversaoMonetariaCard conversaoMonetaria={resultado.conversaoMonetaria} />
                 <MemorialCalculo
                   processo={{
                     numeroProcesso: form.getValues("numeroProcesso"),

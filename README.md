@@ -22,6 +22,7 @@ Outros comandos úteis:
 npm run build   # build de produção
 npm run start   # roda o build de produção
 npm run lint    # ESLint
+npm run test    # testes unitários (vitest)
 ```
 
 ## Páginas
@@ -76,16 +77,51 @@ valor vigente é o último publicado (carry-forward), nunca um valor novo. A
 busca usada pela calculadora localiza sempre o registro cuja vigência
 contempla exatamente a data do falecimento, nunca apenas por ano/mês.
 
-### Valores na moeda da época (sem conversão)
+### Valores na moeda da época, na base
 
 Os registros anteriores a 01/07/1994 são gravados na moeda oficial vigente
 naquela data (Cruzados Novos, Cruzeiros ou Cruzeiros Reais), exatamente como
-publicado pela fonte — nunca convertidos para Real. Isso é necessário para
-que a divisão "valor dos bens ÷ UFESP da época" (ver
-`services/calculoService.ts`) continue correta quando o valor dos bens também
-estiver expresso na moeda da época, como consta no inventário original. Cada
-registro nessas condições traz uma observação automática indicando a moeda
-vigente.
+publicado pela fonte — a base (`data/ufesp.json`) nunca converte para Real.
+Cada registro nessas condições traz uma observação automática indicando a
+moeda vigente. A conversão para Real acontece só na hora do cálculo (ver
+seção seguinte), nunca na importação.
+
+## Conversão monetária histórica
+
+Antes de dividir "valor dos bens ÷ UFESP da época", a calculadora converte os
+dois lados para Real usando a cadeia oficial de padrões monetários
+brasileiros (`services/conversaoMonetariaService.ts`), verificada contra o
+Banco Central do Brasil e consistente com o rodapé da própria página oficial
+da UFESP:
+
+| Moeda | Vigência | Fator para a próxima |
+|---|---|---|
+| Cruzeiro | 11/01/1942–13/02/1967 | 1.000 Cr$ = 1 NCr$ |
+| Cruzeiro Novo | 13/02/1967–15/05/1970 | 1 NCr$ = 1 Cr$ (renomeação) |
+| Cruzeiro | 15/05/1970–28/02/1986 | 1.000 Cr$ = 1 Cz$ |
+| Cruzado | 28/02/1986–16/01/1989 | 1.000 Cz$ = 1 NCz$ |
+| Cruzado Novo | 16/01/1989–16/03/1990 | 1 NCz$ = 1 Cr$ (renomeação) |
+| Cruzeiro | 16/03/1990–01/08/1993 | 1.000 Cr$ = 1 CR$ |
+| Cruzeiro Real | 01/08/1993–01/07/1994 | 2.750 CR$ = 1 R$ |
+| Real | desde 01/07/1994 | — |
+
+Nenhum fator é fixo/hardcoded fora dessa tabela — todos são o produto dos
+fatores oficiais de cada transição, na cadeia até o Real.
+
+**Por que isso não muda os resultados no caso normal:** se o valor dos bens e
+a UFESP da época estiverem na mesma moeda (o padrão, já que a UFESP é
+detectada automaticamente pela data), o fator de conversão se cancela na
+divisão — o resultado final é idêntico a dividir os valores brutos sem
+converter. A conversão só muda o resultado quando o advogado declara
+explicitamente uma moeda diferente da detectada (campo **"Moeda do Valor
+Informado"**, na tela `/calcular`) — por exemplo, quando o valor lançado já
+veio de uma atualização anterior e está em uma moeda diferente da vigente na
+data do falecimento.
+
+Toda a conversão é auditável: o card **"Conversão Monetária"** e o Memorial de
+Cálculo mostram moeda original, valor original, valor convertido, fator
+aplicado e base legal — tanto para o valor dos bens quanto para a UFESP da
+época.
 
 ### Armazenamento em memória (nesta versão)
 
@@ -118,7 +154,8 @@ components/
   calculo/            Seção "Dados do Cálculo", Resultado, UFESP utilizada e Memorial
   ufesp/              Filtros, tabela, dialogs de criar/editar/excluir da tela /ufesp
   layout/             Sidebar de navegação e PageHeader
-services/             Regra de negócio pura (calculoService, ufespService)
+services/             Regra de negócio pura (calculoService, ufespService,
+                      conversaoMonetariaService) + testes unitários (*.test.ts)
 hooks/                useResumoProcesso (prévia em tempo real do painel lateral)
 lib/                  Validações Zod e utilitário cn() do shadcn
 utils/                Formatadores (moeda, data, UFESP) e exportação CSV/Excel

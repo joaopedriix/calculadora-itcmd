@@ -1,3 +1,5 @@
+import type { ConversaoMonetaria } from "./moeda"
+
 /** Recorte da UFESP localizada para a data do falecimento, com proveniência. */
 export interface UfespUtilizada {
   valor: number
@@ -14,6 +16,8 @@ export interface UfespUtilizada {
  */
 export interface ResultadoCalculo {
   ufespUtilizada: UfespUtilizada
+  /** Conversão para Real do valor dos bens e da UFESP da época — auditável, nunca oculta. */
+  conversaoMonetaria: ConversaoMonetaria
   ufespAtual: number
   quantidadeUfesp: number
   valorAtualizado: number

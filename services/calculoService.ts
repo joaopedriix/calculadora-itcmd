@@ -1,3 +1,4 @@
+import { converterParaReal, converterUFESP, resolverMoeda } from "@/services/conversaoMonetariaService"
 import { buscarUFESP, buscarUFESPAtual } from "@/services/ufespService"
 import type { DadosCalculo, ResultadoCalculo } from "@/types"
 
@@ -17,7 +18,14 @@ export class UfespNaoEncontradaError extends Error {
   }
 }
 
-/** Quantidade de UFESP = Valor dos Bens ÷ UFESP da época. */
+/**
+ * Quantidade de UFESP = Valor dos Bens ÷ UFESP da época.
+ *
+ * Os dois valores devem estar na MESMA moeda (normalmente já convertidos
+ * para Real por `converterParaReal`/`converterUFESP` antes de chegar aqui —
+ * ver `calcularItcmdPorUfesp`). Dividir valores em moedas diferentes sem
+ * conversão prévia produz um resultado sem sentido.
+ */
 export function calcularQuantidadeUfesp(
   valorBens: number,
   ufespEpoca: number
@@ -90,7 +98,18 @@ function calcularItcmdPorUfesp(dados: DadosCalculo): ResultadoCalculo {
 
   const ufespAtual = registroAtual.valor
 
-  const quantidadeUfesp = calcularQuantidadeUfesp(dados.valorBens, registroEpoca.valor)
+  // Antes de dividir, os dois lados precisam estar na mesma moeda (Real):
+  // a moeda do valor dos bens é a escolhida/detectada pelo advogado; a
+  // moeda da UFESP da época é sempre a vigente na própria data do registro
+  // (nunca escolhida manualmente — é inerente à tabela oficial).
+  const moedaValorBens = resolverMoeda(dados.moedaValorInformado, dados.dataFalecimento)
+  const conversaoValorBens = converterParaReal(dados.valorBens, moedaValorBens)
+  const conversaoUfespEpoca = converterUFESP(registroEpoca.valor, registroEpoca.dataInicioVigencia)
+
+  const quantidadeUfesp = calcularQuantidadeUfesp(
+    conversaoValorBens.valorConvertido,
+    conversaoUfespEpoca.valorConvertido
+  )
   const valorAtualizado = calcularValorAtualizado(quantidadeUfesp, ufespAtual)
   const valorItcmd = calcularItcmd(valorAtualizado, dados.aliquotaItcmd)
   const valorMulta = calcularMulta(valorItcmd, dados.percentualMulta)
@@ -104,6 +123,10 @@ function calcularItcmdPorUfesp(dados: DadosCalculo): ResultadoCalculo {
       baseLegal: registroEpoca.baseLegal,
       fonte: registroEpoca.fonte,
       observacoes: registroEpoca.observacoes,
+    },
+    conversaoMonetaria: {
+      valorBens: conversaoValorBens,
+      ufespEpoca: conversaoUfespEpoca,
     },
     ufespAtual,
     quantidadeUfesp,

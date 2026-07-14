@@ -11,9 +11,26 @@ const ufespFormatter = new Intl.NumberFormat("pt-BR", {
   maximumFractionDigits: 4,
 })
 
+const currencyPrecisoFormatter = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 8,
+})
+
 /** Formata um número como moeda brasileira (ex.: 1234.5 -> "R$ 1.234,50"). */
 export function formatCurrency(valor: number): string {
   return currencyFormatter.format(valor)
+}
+
+/**
+ * Formata um valor em Real com até 8 casas decimais — usado só para valores
+ * intermediários de auditoria (ex.: conversão monetária de eras
+ * hiperinflacionárias), onde arredondar em 2 casas decimais faria um valor
+ * real virar "R$ 0,00" e esconder a divisão que de fato ocorreu.
+ */
+export function formatCurrencyPreciso(valor: number): string {
+  return currencyPrecisoFormatter.format(valor)
 }
 
 /** Formata uma quantidade de UFESP com até 4 casas decimais. */
