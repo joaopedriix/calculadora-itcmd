@@ -59,6 +59,15 @@ describe("executarCalculo — regressão com dado oficial (15/05/1991)", () => {
     expect(resultado.valorAtualizado).toBeCloseTo(10 * ufespAtual, 6)
   })
 
+  it("nunca representa a UFESP histórica como se estivesse em Real", () => {
+    const resultado = executarCalculo(dadosBase)
+    // O valor de `ufespUtilizada` é o valor ORIGINAL publicado pela fonte,
+    // na moeda da época (Cruzeiro) — não pode ser confundido com Real.
+    expect(resultado.ufespUtilizada.valor).toBeCloseTo(1996.31, 2)
+    expect(resultado.ufespUtilizada.moeda).toBe("cruzeiro_1990")
+    expect(resultado.ufespUtilizada.moeda).not.toBe("real")
+  })
+
   it("expõe a conversão monetária auditável dos dois lados da divisão", () => {
     const resultado = executarCalculo(dadosBase)
     expect(resultado.conversaoMonetaria.valorBens.moeda.codigo).toBe("cruzeiro_1990")

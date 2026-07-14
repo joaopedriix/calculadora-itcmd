@@ -15,6 +15,7 @@ import {
   formatDate,
   formatPeriodoVigencia,
   formatUfesp,
+  formatValorNaMoeda,
 } from "@/utils/formatters"
 import type { DadosCalculo, DadosProcesso, ResultadoCalculo } from "@/types"
 
@@ -85,7 +86,10 @@ export function MemorialCalculo({
           />
           <LinhaMemorial
             label="Valor original dos bens"
-            valor={formatCurrency(calculo.valorBens)}
+            valor={formatValorNaMoeda(
+              calculo.valorBens,
+              resultado.conversaoMonetaria.valorBens.moeda.simbolo
+            )}
           />
           <LinhaMemorial
             label="Valor dos bens convertido para Real"
@@ -109,10 +113,10 @@ export function MemorialCalculo({
           />
           <LinhaMemorial
             label="UFESP original (moeda da época)"
-            valor={`${resultado.conversaoMonetaria.ufespEpoca.moeda.simbolo} ${resultado.ufespUtilizada.valor.toLocaleString(
-              "pt-BR",
-              { minimumFractionDigits: 2, maximumFractionDigits: 2 }
-            )}`}
+            valor={formatValorNaMoeda(
+              resultado.ufespUtilizada.valor,
+              resultado.conversaoMonetaria.ufespEpoca.moeda.simbolo
+            )}
           />
           <LinhaMemorial
             label="UFESP convertida para Real"

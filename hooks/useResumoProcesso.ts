@@ -11,7 +11,7 @@ import {
 import { converterParaReal, converterUFESP, resolverMoeda } from "@/services/conversaoMonetariaService"
 import { buscarUFESP, buscarUFESPAtual } from "@/services/ufespService"
 import type { CalculoFormValues } from "@/lib/validations"
-import { MOEDA_AUTOMATICA } from "@/types"
+import { MOEDA_AUTOMATICA, type CodigoMoeda } from "@/types"
 
 export interface ResumoProcessoPreview {
   numeroProcesso: string
@@ -19,7 +19,11 @@ export interface ResumoProcessoPreview {
   nomeFalecido: string
   dataFalecimento?: Date
   valorBens?: number
+  /** Moeda em que `valorBens` foi informado (detectada ou escolhida manualmente). */
+  valorBensMoeda: CodigoMoeda | null
   ufespEncontrada: number | null
+  /** Moeda original da UFESP encontrada — nunca assumir Real (ver `ufespEncontrada`). */
+  ufespMoeda: CodigoMoeda | null
   ufespAtual: number | null
   valorAtualizado: number | null
   valorTotal: number | null
@@ -48,14 +52,21 @@ export function useResumoProcesso(
     const ufespAtual = buscarUFESPAtual()?.valor ?? null
 
     let ufespEncontrada: number | null = null
+    let ufespMoeda: CodigoMoeda | null = null
+    let valorBensMoeda: CodigoMoeda | null = null
     let valorAtualizado: number | null = null
     let valorTotal: number | null = null
+
+    if (dataFalecimento) {
+      valorBensMoeda = resolverMoeda(moedaValorInformado ?? MOEDA_AUTOMATICA, dataFalecimento).codigo
+    }
 
     if (dataFalecimento && valorBens && valorBens > 0 && ufespAtual !== null) {
       const registro = buscarUFESP(dataFalecimento)
 
       if (registro) {
         ufespEncontrada = registro.valor
+        ufespMoeda = registro.moeda
 
         const moedaValorBens = resolverMoeda(
           moedaValorInformado ?? MOEDA_AUTOMATICA,
@@ -88,7 +99,9 @@ export function useResumoProcesso(
       nomeFalecido: nomeFalecido ?? "",
       dataFalecimento,
       valorBens,
+      valorBensMoeda,
       ufespEncontrada,
+      ufespMoeda,
       ufespAtual,
       valorAtualizado,
       valorTotal,

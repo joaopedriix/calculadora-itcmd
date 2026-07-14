@@ -118,6 +118,7 @@ function calcularItcmdPorUfesp(dados: DadosCalculo): ResultadoCalculo {
   return {
     ufespUtilizada: {
       valor: registroEpoca.valor,
+      moeda: registroEpoca.moeda,
       dataInicioVigencia: registroEpoca.dataInicioVigencia,
       dataFimVigencia: registroEpoca.dataFimVigencia,
       baseLegal: registroEpoca.baseLegal,

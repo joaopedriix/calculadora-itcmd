@@ -7,10 +7,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { buscarRegimePorCodigo } from "@/services/conversaoMonetariaService"
 import {
-  formatCurrency,
   formatDate,
   formatPeriodoVigencia,
+  formatValorNaMoeda,
 } from "@/utils/formatters"
 import type { UfespUtilizada } from "@/types"
 
@@ -50,7 +51,13 @@ export function UfespUtilizadaCard({ ufespUtilizada }: UfespUtilizadaCardProps) 
             label="Data encontrada"
             valor={formatDate(ufespUtilizada.dataInicioVigencia)}
           />
-          <Campo label="Valor da UFESP" valor={formatCurrency(ufespUtilizada.valor)} />
+          <Campo
+            label="Valor da UFESP"
+            valor={formatValorNaMoeda(
+              ufespUtilizada.valor,
+              buscarRegimePorCodigo(ufespUtilizada.moeda).simbolo
+            )}
+          />
           <Campo
             label="Período de vigência"
             valor={formatPeriodoVigencia(

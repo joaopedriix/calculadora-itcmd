@@ -1,8 +1,11 @@
-import type { ConversaoMonetaria } from "./moeda"
+import type { CodigoMoeda, ConversaoMonetaria } from "./moeda"
 
 /** Recorte da UFESP localizada para a data do falecimento, com proveniência. */
 export interface UfespUtilizada {
+  /** Valor exatamente como publicado pela fonte oficial, na moeda de `moeda` — nunca convertido para Real aqui. */
   valor: number
+  /** Moeda oficial vigente na época (ver `services/conversaoMonetariaService.ts`). */
+  moeda: CodigoMoeda
   dataInicioVigencia: Date
   dataFimVigencia: Date | null
   baseLegal?: string

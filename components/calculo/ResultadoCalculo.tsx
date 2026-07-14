@@ -8,7 +8,8 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { formatCurrency, formatUfesp } from "@/utils/formatters"
+import { buscarRegimePorCodigo } from "@/services/conversaoMonetariaService"
+import { formatCurrency, formatUfesp, formatValorNaMoeda } from "@/utils/formatters"
 import type { ResultadoCalculo as ResultadoCalculoType } from "@/types"
 
 interface ResultadoCalculoProps {
@@ -46,7 +47,10 @@ export function ResultadoCalculo({ resultado }: ResultadoCalculoProps) {
         <div className="divide-y">
           <LinhaResultado
             label="UFESP utilizada (época)"
-            valor={formatCurrency(resultado.ufespUtilizada.valor)}
+            valor={formatValorNaMoeda(
+              resultado.ufespUtilizada.valor,
+              buscarRegimePorCodigo(resultado.ufespUtilizada.moeda).simbolo
+            )}
           />
           <LinhaResultado
             label="UFESP atual"

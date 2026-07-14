@@ -19,7 +19,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { formatCurrency, formatDate } from "@/utils/formatters"
+import { buscarRegimePorCodigo } from "@/services/conversaoMonetariaService"
+import { formatDate, formatValorNaMoeda } from "@/utils/formatters"
 import type { UfespRecord } from "@/types"
 
 const ITENS_POR_PAGINA = 15
@@ -65,6 +66,7 @@ export function UfespTable({
               <TableHead>Mês</TableHead>
               <TableHead>Dia</TableHead>
               <TableHead>Valor UFESP</TableHead>
+              <TableHead>Moeda</TableHead>
               <TableHead>Base Legal</TableHead>
               <TableHead>Fonte</TableHead>
               <TableHead>Observações</TableHead>
@@ -74,7 +76,7 @@ export function UfespTable({
           <TableBody>
             {registrosPagina.length === 0 && (
               <TableRow>
-                <TableCell colSpan={10} className="h-24 text-center text-muted-foreground">
+                <TableCell colSpan={11} className="h-24 text-center text-muted-foreground">
                   Nenhum registro encontrado para os filtros aplicados.
                 </TableCell>
               </TableRow>
@@ -95,7 +97,13 @@ export function UfespTable({
                 <TableCell>{registro.mes}</TableCell>
                 <TableCell>{registro.dia}</TableCell>
                 <TableCell className="font-medium tabular-nums">
-                  {formatCurrency(registro.valor)}
+                  {formatValorNaMoeda(
+                    registro.valor,
+                    buscarRegimePorCodigo(registro.moeda).simbolo
+                  )}
+                </TableCell>
+                <TableCell className="whitespace-nowrap text-muted-foreground">
+                  {buscarRegimePorCodigo(registro.moeda).nome}
                 </TableCell>
                 <TableCell
                   className="max-w-48 truncate text-muted-foreground"

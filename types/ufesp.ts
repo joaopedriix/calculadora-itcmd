@@ -10,6 +10,8 @@
  * apenas para exibição/filtros na tela administrativa — nunca devem ser
  * editados de forma independente da data de vigência (ver ufespService).
  */
+import type { CodigoMoeda } from "./moeda"
+
 export interface UfespRecord {
   id: string
   dataInicioVigencia: Date
@@ -18,7 +20,15 @@ export interface UfespRecord {
   ano: number
   mes: number
   dia: number
+  /** Valor exatamente como publicado pela fonte oficial, na moeda de `moeda` — nunca convertido para Real aqui. */
   valor: number
+  /**
+   * Moeda oficial vigente em `dataInicioVigencia` (Cruzeiro, Cruzado,
+   * Cruzado Novo, Cruzeiro Real ou Real). Sempre derivada da própria data —
+   * nunca escolhida manualmente, ver `identificarMoeda` em
+   * `services/conversaoMonetariaService.ts`.
+   */
+  moeda: CodigoMoeda
   /** Comunicado/ato normativo que fixou o valor, quando publicado pela fonte. */
   baseLegal?: string
   fonte: string

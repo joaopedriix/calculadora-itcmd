@@ -1,4 +1,5 @@
 import { paraRegistro, UFESP_SEED, type UfespRecordJson } from "@/data/ufesp"
+import { identificarMoeda } from "@/services/conversaoMonetariaService"
 import type { EdicaoUfespInput, NovoUfespInput, UfespRecord } from "@/types"
 
 /**
@@ -92,7 +93,7 @@ export function listarUFESP(): UfespRecord[] {
   return ordenarPorVigencia(registros)
 }
 
-/** Cria um novo registro de UFESP. `ano`/`mes`/`dia` são sempre derivados. */
+/** Cria um novo registro de UFESP. `ano`/`mes`/`dia`/`moeda` são sempre derivados. */
 export function adicionar(dados: NovoUfespInput): UfespRecord {
   const agora = new Date()
   const novo: UfespRecord = {
@@ -101,6 +102,7 @@ export function adicionar(dados: NovoUfespInput): UfespRecord {
     dataFimVigencia: dados.dataFimVigencia ?? null,
     ...derivarAnoMesDia(dados.dataInicioVigencia),
     valor: dados.valor,
+    moeda: identificarMoeda(dados.dataInicioVigencia).codigo,
     baseLegal: dados.baseLegal,
     fonte: dados.fonte,
     observacoes: dados.observacoes,
@@ -112,7 +114,7 @@ export function adicionar(dados: NovoUfespInput): UfespRecord {
   return novo
 }
 
-/** Atualiza um registro existente. `ano`/`mes`/`dia` são sempre re-derivados. */
+/** Atualiza um registro existente. `ano`/`mes`/`dia`/`moeda` são sempre re-derivados. */
 export function editar(id: string, dados: EdicaoUfespInput): UfespRecord {
   const existente = registros.find((registro) => registro.id === id)
   if (!existente) {
@@ -125,6 +127,7 @@ export function editar(id: string, dados: EdicaoUfespInput): UfespRecord {
     dataFimVigencia: dados.dataFimVigencia ?? null,
     ...derivarAnoMesDia(dados.dataInicioVigencia),
     valor: dados.valor,
+    moeda: identificarMoeda(dados.dataInicioVigencia).codigo,
     baseLegal: dados.baseLegal,
     fonte: dados.fonte,
     observacoes: dados.observacoes,

@@ -1,3 +1,4 @@
+import { buscarRegimePorCodigo } from "@/services/conversaoMonetariaService"
 import type { UfespRecord } from "@/types"
 import { formatDate } from "@/utils/formatters"
 
@@ -21,6 +22,7 @@ function paraLinhas(registros: UfespRecord[]): LinhaExportacao[] {
     Mês: registro.mes,
     Dia: registro.dia,
     "Valor da UFESP": registro.valor,
+    Moeda: buscarRegimePorCodigo(registro.moeda).nome,
     "Base Legal": registro.baseLegal ?? "",
     Fonte: registro.fonte,
     Observações: registro.observacoes ?? "",

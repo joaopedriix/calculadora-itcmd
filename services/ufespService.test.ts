@@ -9,6 +9,17 @@ describe("buscarUFESP — regressão contra dados oficiais da SEFAZ-SP", () => {
     expect(registro!.valor).toBeCloseTo(1996.31, 2)
   })
 
+  it("armazena a moeda original do registro, nunca assumindo Real", () => {
+    // 15/05/1991 está na era do "Cruzeiro" (1990-1993), nunca deve ser
+    // tratado como se já estivesse em Real.
+    const registro = buscarUFESP(new Date(1991, 4, 15))
+    expect(registro!.moeda).toBe("cruzeiro_1990")
+
+    // A UFESP vigente hoje deve ser identificada como Real.
+    const atual = buscarUFESPAtual()
+    expect(atual!.moeda).toBe("real")
+  })
+
   it("aplica carry-forward em dia sem publicação (fim de semana em 1993)", () => {
     // 06/06/1993 é domingo — sem publicação; o valor vigente é o de 04/06/1993.
     const registro = buscarUFESP(new Date(1993, 5, 6))

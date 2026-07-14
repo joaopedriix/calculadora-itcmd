@@ -8,7 +8,8 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { formatCurrency, formatDate } from "@/utils/formatters"
+import { buscarRegimePorCodigo } from "@/services/conversaoMonetariaService"
+import { formatCurrency, formatDate, formatValorNaMoeda } from "@/utils/formatters"
 import type { ResumoProcessoPreview } from "@/hooks/useResumoProcesso"
 
 interface ResumoProcessoPanelProps {
@@ -47,7 +48,14 @@ export function ResumoProcessoPanel({ resumo }: ResumoProcessoPanelProps) {
         />
         <LinhaResumo
           label="Valor dos bens"
-          valor={resumo.valorBens ? formatCurrency(resumo.valorBens) : "—"}
+          valor={
+            resumo.valorBens && resumo.valorBensMoeda
+              ? formatValorNaMoeda(
+                  resumo.valorBens,
+                  buscarRegimePorCodigo(resumo.valorBensMoeda).simbolo
+                )
+              : "—"
+          }
         />
 
         <Separator className="my-2" />
@@ -55,8 +63,11 @@ export function ResumoProcessoPanel({ resumo }: ResumoProcessoPanelProps) {
         <LinhaResumo
           label="UFESP encontrada"
           valor={
-            resumo.ufespEncontrada !== null
-              ? formatCurrency(resumo.ufespEncontrada)
+            resumo.ufespEncontrada !== null && resumo.ufespMoeda !== null
+              ? formatValorNaMoeda(
+                  resumo.ufespEncontrada,
+                  buscarRegimePorCodigo(resumo.ufespMoeda).simbolo
+                )
               : "—"
           }
         />

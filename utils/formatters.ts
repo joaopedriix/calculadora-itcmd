@@ -33,6 +33,21 @@ export function formatCurrencyPreciso(valor: number): string {
   return currencyPrecisoFormatter.format(valor)
 }
 
+/**
+ * Formata um valor com o símbolo de uma moeda histórica (ex.: "Cr$
+ * 1.996,31"). Usar sempre que o valor NÃO estiver garantidamente em Real —
+ * um valor histórico de UFESP ou de bens quase sempre está em outra moeda
+ * (Cruzeiro, Cruzado, Cruzado Novo, Cruzeiro Real), e `formatCurrency`
+ * sempre imprime "R$", o que mentiria sobre a moeda real do valor.
+ */
+export function formatValorNaMoeda(valor: number, simboloMoeda: string): string {
+  const numeroFormatado = valor.toLocaleString("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })
+  return `${simboloMoeda} ${numeroFormatado}`
+}
+
 /** Formata uma quantidade de UFESP com até 4 casas decimais. */
 export function formatUfesp(valor: number): string {
   return ufespFormatter.format(valor)

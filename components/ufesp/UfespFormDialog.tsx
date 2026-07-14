@@ -22,6 +22,7 @@ import { FieldGroup } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { ufespFormSchema, type UfespFormValues } from "@/lib/validations"
+import { identificarMoeda } from "@/services/conversaoMonetariaService"
 import type { UfespRecord } from "@/types"
 
 export type UfespFormMode = "criar" | "editar" | "visualizar"
@@ -163,12 +164,19 @@ export function UfespFormDialog({
               <Badge variant="secondary">
                 Dia {dataInicioVigencia?.getDate()}
               </Badge>
+              <Badge variant="secondary">
+                Moeda{" "}
+                {dataInicioVigencia
+                  ? `${identificarMoeda(dataInicioVigencia).nome} (${identificarMoeda(dataInicioVigencia).simbolo})`
+                  : "—"}
+              </Badge>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <FormRow
                 id="valor"
                 label="Valor da UFESP"
+                description="Exatamente como publicado pela fonte, na moeda vigente na data (badge acima) — nunca convertido para Real aqui."
                 error={form.formState.errors.valor}
                 required
               >
